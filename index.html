@@ -104,9 +104,25 @@
       display: none;
     }
 
-    .btn {
-      line-height: 2.2;
-      border-radius: 0px 0px calc(12vw/19.2) calc(12vw/19.2);
+
+    .multipleTransform{
+      background-image: url(./img/2.png);
+      background-repeat: no-repeat;
+      background-size: 33%;
+      background-position: right;
+    }
+    .inputArea{
+      background-image: url(./img/1.png);
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: right;
+    }
+    .winnerForm
+    {
+      background-image: url(./img/3.png);
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: right;
     }
 
     .multipleTransform.hand {
@@ -314,6 +330,7 @@
       text-align: center;
       height: 100%;
       font-size: calc(16vw/19.2);
+      line-height: 2.2;
     }
 
     input {
@@ -393,7 +410,7 @@
         <div class="btn-group" role="group" aria-label="Basic outlined example">
           <div class="col-6">
             <button type="button" class="copy btn multipleTransformBtn" style="background-color: #faae86; color: #000;"
-              disabled>當前獎項已中獎數: <span class="draw-Amount">0</span></button>
+              >當前獎項已中獎數: <span class="draw-Amount">0</span></button>
           </div>
           <div class="col-6">
             <input type="checkbox" class="btn-check" id="btncheck1" autocomplete="off" checked>
