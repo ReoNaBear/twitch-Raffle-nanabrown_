@@ -342,6 +342,10 @@
     .winnerNamesForm {
       border-radius: 20px;
     }
+
+    .total-pick::placeholder {
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -424,8 +428,9 @@
         </div>
         <div class="btn-group" role="group" aria-label="Basic outlined example">
           <div class="col-6">
-            <button type="button" class="copy btn multipleTransformBtn deleteBtn"
-              style="border-radius: 0px 0px 0px calc(12vw/19.2)" onclick="deleteWinnerInList()">將中獎者從抽獎名單刪除</button>
+            <button type="button" class="copy btn multipleTransformBtn deleteBtn">
+              <input class="total-pick" type="number" placeholder="一次想抽出幾個呢?">
+            </button>
           </div>
           <div class="col-6">
             <button type="button" class="copy btn multipleTransformBtn"
@@ -491,7 +496,8 @@
   let nowAward = ''
   let newAward = ''
   let drawAmount = 0
-
+  let totalPick = document.querySelector('.total-pick')
+  let totalPickNumber = 1
 
   //如果獎項名稱有更動
   awardTitle.addEventListener('change', function () {
@@ -501,6 +507,13 @@
       awardChange = false
       newAward = ''
     }
+  })
+
+  totalPick.addEventListener('change', function () {
+    if (isNaN(totalPick.value) || Number(totalPick.value) <= 0) {
+      totalPick.value = 1
+    }
+    totalPickNumber = Number(totalPick.value)
   })
 
   //拉霸動畫控制
@@ -552,7 +565,7 @@
   })
 
   // 初始抽獎動畫
-  let text = '樓下說他中獎了!!!!';  // The message displayed
+  let text = '過勾又周年 超級讚啦!!!!';  // The message displayed
   let chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890() ';  // All possible Charactrers
   let scale = 40;  // Font size and overall scale
   let breaks = 0.003;  // Speed loss per frame
@@ -573,7 +586,7 @@
       nowPlaying = true
       playAnimation()
       let drawList = getDrawList()
-      let http = `https://www.random.org/integers/?num=1&min=1&max=${drawList.length}&col=1&base=10&format=plain&rnd=new`
+      let http = `https://www.random.org/integers/?num=${totalPickNumber * 10}&min=0&max=${drawList.length - 1}&col=1&base=10&format=plain&rnd=new`
       if (winnerMode === 'edit') {
         toastr.error('請先儲存中獎者名單')
         return
@@ -583,23 +596,31 @@
             return e.data
           })
           .then(data => {
+            let numbers = data.split(/\s+/)
+            console.log(data);
             if (!data) {
               toastr.error('請先輸入抽獎者名單')
               text = '納納二周年 大大大優惠!!!'
             }
             else {
-              text = drawList[data - 1]
-              setWinnerList(drawList[data - 1])
+              if (totalPickNumber === 1) {
+                text = drawList[numbers[0]]
+              } else {
+                text = '好想要中獎喔!!!'
+              }
+              console.log(data);
+              setWinnerList(numbers, drawList)
             }
             drawAnimationDetail(text)
           }
           ).catch(e => {
+            nowPlaying = false
             if (drawList.length === 1 && !!drawList[0]) {
               text = drawList[0]
               setWinnerList(drawList[0])
             } else {
               toastr.error('請輸入抽獎名單或所有參與者皆已中獎')
-              text = '納納二周年 大大大優惠!!!'
+              text = '後面的是花瓣，才不是洋芋片!!!'
             }
             drawAnimationDetail(text)
           }
@@ -715,8 +736,6 @@
       newList = makeDrawList(auto, 2)
     }
     shuffle(newList)
-    shuffle(newList)
-
     return newList
   }
 
@@ -724,12 +743,6 @@
   function makeDrawList(array, index) {
     let finalData = ''
     let drawList = []
-    // let thisAwardWinners = []
-    // if (!awardChange) {
-    //   for (let i = winnerNames.length - 1; i > winnerNames.length - 1 - drawAmount; i--) {
-    //     thisAwardWinners.push(winnerNames[i])
-    //   }
-    // }
     if (array[0] !== '') {
       if (index === 1) {
         for (let i = 0; i < array.length; i += 2) {
@@ -749,6 +762,7 @@
             drawList.push(`${array[i]} ${array[i + 1]}`)
           }
         }
+        console.log(drawList);
         return drawList
       }
     } else {
@@ -796,7 +810,7 @@
   }
 
   //將新的中獎者加入名單
-  function setWinnerList(winner) {
+  function setWinnerList(winnerNumberList, drawList) {
     if (awardChange) {
       winnerList.push(`=====${newAward}=====`)
       winnerNames.push(`=====${newAward}=====`)
@@ -806,14 +820,44 @@
       drawAmount = 0
       nowDrawNumber.innerText = drawAmount
     }
-    drawAmount += 1
-    nowDrawNumber.innerText = drawAmount
-    winnerList.push(winner)
-    winnerNames.push(winner.trim().split(/\s+/)[1])
+    let count = 0
+    let elseList = []
+    for (let i = 0; i < totalPickNumber * 10; i++) {
+      let winMan = drawList[winnerNumberList[i]]
+      let name = winMan.trim().split(/\s+/)[1]
+      if (autoFilter) {
+        if (!winnerNames.includes(name)) {
+          count = count + 1
+          winnerList.push(winMan)
+          winnerNames.push(name)
+          console.log(`第${count}位中獎者: ${name}`);
+        }
+        if (Number(count) === Number(totalPickNumber)) {
+          break
+        }
+      } else {
+        if (!elseList.includes(name)) {
+          count = count + 1
+          winnerList.push(winMan)
+          winnerNames.push(name)
+          elseList.push(name)
+          console.log(`第${count}位中獎者: ${name}`);
+        }
+        if (Number(count) === Number(totalPickNumber)) {
+          break
+        }
+      }
+    }
+    if (count < totalPickNumber) {
+      console.log("真的假的");
+      totalPickNumber = count
+    }
 
+    drawAmount = drawAmount + totalPickNumber
+    nowDrawNumber.innerText = drawAmount
     setTimeout(() => {
       renewWinnerForm()
-    }, 4500);
+    }, 4000);
   }
 
   //重新整理得獎者名單
