@@ -565,7 +565,7 @@
   })
 
   // 初始抽獎動畫
-  let text = '過勾又周年 超級讚啦!!!!';  // The message displayed
+  let text = '納納又來送好禮拉!!!!';  // The message displayed
   let chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890() ';  // All possible Charactrers
   let scale = 40;  // Font size and overall scale
   let breaks = 0.003;  // Speed loss per frame
@@ -600,7 +600,7 @@
             console.log(data);
             if (!data) {
               toastr.error('請先輸入抽獎者名單')
-              text = '納納二周年 大大大優惠!!!'
+              text = '納納又來抽好東西啦!!!'
             }
             else {
               if (totalPickNumber === 1) {
@@ -617,7 +617,7 @@
             nowPlaying = false
             if (drawList.length === 1 && !!drawList[0]) {
               text = drawList[0]
-              setWinnerList(drawList[0])
+              setWinnerList([0], drawList)
             } else {
               toastr.error('請輸入抽獎名單或所有參與者皆已中獎')
               text = '後面的是花瓣，才不是洋芋片!!!'
@@ -730,7 +730,7 @@
     let newList = []
     if (nowMode === 'hand') {
       let hand = document.querySelector('.multipleTransform.hand').value.trim().split(/\s+/)
-      newList = makeDrawList(hand, 2)
+      newList = makeDrawList(hand, 3)
     } else {
       let auto = document.querySelector('.multipleTransform.auto').value.trim().split(/\s+/)
       newList = makeDrawList(auto, 2)
@@ -757,9 +757,17 @@
         }
         return finalData
       } else {
-        for (let i = 0; i < array.length; i += 2) {
-          if (!autoFilter || !winnerNames.includes(array[i + 1])) {
-            drawList.push(`${array[i]} ${array[i + 1]}`)
+        if(index == 3) {
+          for (let i = 0; i < array.length; i ++) {
+            if (!autoFilter || !winnerNames.includes(array[i])) {
+              drawList.push(`1 ${array[i]}`)
+            }
+          }
+        } else {
+          for (let i = 0; i < array.length; i += 2) {
+            if (!autoFilter || !winnerNames.includes(array[i + 1])) {
+              drawList.push(`${array[i]} ${array[i + 1]}`)
+            }
           }
         }
         console.log(drawList);
@@ -823,6 +831,9 @@
     let count = 0
     let elseList = []
     for (let i = 0; i < totalPickNumber * 10; i++) {
+      if(i >= drawList.length) {
+        break
+      }
       let winMan = drawList[winnerNumberList[i]]
       let name = winMan.trim().split(/\s+/)[1]
       if (autoFilter) {
